@@ -1,0 +1,47 @@
+{
+    "tasks": [
+        {
+            "label": "Run FrReader",
+            "type": "process",
+            "command": "dotnet",
+            "args": ["run", "--project", "${workspaceFolder}/FrReader/FrReader.csproj"],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build FrReader",
+            "type": "process",
+            "command": "dotnet",
+            "args": ["build", "${workspaceFolder}/FrReader/FrReader.csproj"],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "runOptions": {"reevaluateOnRerun": true}
+        },
+        {
+            "label": "Build main plugin",
+            "type": "process",
+            "command": "dotnet",
+            "args": ["build", "${workspaceFolder}/OpenReinforce/OpenReinforce.csproj"],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "runOptions": {"reevaluateOnRerun": true}
+        },
+        {
+            "label": "Build test plugin",
+            "type": "process",
+            "command": "dotnet",
+            "args": ["build", "${workspaceFolder}/OpenReinforce.TestPlugin/OpenReinforce.TestPlugin.csproj"],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build"
+            },
+            "runOptions": {"reevaluateOnRerun": true}
+        }
+    ],
+    "version": "2.0.0"
+}

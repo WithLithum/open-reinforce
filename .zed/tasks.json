@@ -1,0 +1,11 @@
+[
+    {
+        "label": "Build test plugin",
+        "command": "dotnet build $ZED_WORKTREE_ROOT\\OpenReinforce.TestPlugin\\OpenReinforce.TestPlugin.csproj /p:Platform=x64",
+        "cwd": "$ZED_WORKTREE_ROOT\\OpenReinforce.TestPlugin",
+    },
+    {
+        "label": "Run FR Reader",
+        "command": "dotnet run --project $ZED_WORKTREE_ROOT\\FrReader\\FrReader.csproj",
+    },
+]

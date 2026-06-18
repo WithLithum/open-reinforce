@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "name": "FrReader",
+            "type": "coreclr",
+            "console": "integratedTerminal",
+            "program": "${workspaceFolder}/FrReader/bin/Debug/net10.0/FrReader.dll",
+            "preLaunchTask": "Build FrReader",
+            "request": "launch"
+        }
+    ]
+}

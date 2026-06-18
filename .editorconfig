@@ -1,0 +1,16 @@
+root = true
+
+[*]
+charset              = utf-8
+end_of_line          = crlf
+indent_style         = space
+indent_size          = 4
+
+file_header_template = SPDX-FileCopyrightText: 2026 WithLithum\nSPDX-License-Identifier: LGPL-3.0-or-later
+
+[*.cs]
+dotnet_diagnostic.IDE0160.severity = none
+dotnet_diagnostic.IDE0161.severity = warning
+
+csharp_style_namespace_declarations = file_scoped
+csharp_style_prefer_primary_constructors = false

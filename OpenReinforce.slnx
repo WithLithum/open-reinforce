@@ -1,0 +1,20 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/Documentation/">
+    <File Path="BUILDING.md" />
+    <File Path="COPYING" />
+    <File Path="COPYING.LESSER" />
+    <File Path="README.md" />
+    <File Path="TODO.txt" />
+  </Folder>
+  <Project Path="FrReader/FrReader.csproj" />
+  <Project Path="OpenReinforce.TestPlugin/OpenReinforce.TestPlugin.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
+  <Project Path="OpenReinforce/OpenReinforce.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+</Project>
+</Solution>
