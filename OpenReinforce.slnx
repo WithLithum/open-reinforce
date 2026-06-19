@@ -10,7 +10,9 @@
     <File Path="README.md" />
     <File Path="TODO.txt" />
   </Folder>
-  <Project Path="FrReader/FrReader.csproj" />
+  <Project Path="FrReader/FrReader.csproj">
+    <Platform Solution="Debug|x64" Project="x64" />
+  </Project>
   <Project Path="OpenReinforce.TestPlugin/OpenReinforce.TestPlugin.csproj">
     <Platform Solution="*|x64" Project="x64" />
   </Project>

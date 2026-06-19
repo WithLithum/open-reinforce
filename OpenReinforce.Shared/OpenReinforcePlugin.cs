@@ -4,6 +4,7 @@
 #if GTA
 
 using OpenReinforce.Engine;
+using OpenReinforce.Shared.Engine.Scene;
 using OpenReinforce.UI;
 using Rage;
 using RAGENativeUI;
@@ -14,6 +15,9 @@ namespace OpenReinforce;
 internal static class OpenReinforcePlugin
 {
     private static readonly CancellationTokenSource CancelSource = new();
+
+    public static DismissManager DismissManager { get; } = new();
+    public static WatchManager WatchManager { get; } = new();
 
     public static void Initialize()
     {
@@ -33,10 +37,10 @@ internal static class OpenReinforcePlugin
             {
                 GameFiber.Yield();
                 ResponseManager.Process();
+                DismissManager.Process();
+                WatchManager.Process();
             }
         }, "OpenReinforce - Game Thread");
-
-        Game.DisplayHelp($"Press ~{Keys.B.GetInstructionalId()}~ to open Open Reinforce main menu.");
     }
 
     public static void Finally()
@@ -51,6 +55,8 @@ internal static class OpenReinforcePlugin
         }
 
         ResponseManager.Cleanup();
+        DismissManager.Cleanup();
+        WatchManager.Cleanup();
 
         CancelSource.Dispose();
     }

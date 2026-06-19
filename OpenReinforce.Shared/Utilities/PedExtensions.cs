@@ -1,8 +1,6 @@
 #if GTA
 #if LSPDFR
 using LSPD_First_Response.Mod.API;
-#else
-using WithLithum.NativeWrapper;
 #endif
 using Rage;
 using System.Diagnostics.CodeAnalysis;
@@ -21,10 +19,35 @@ public static class PedExtensions
     public const uint FreemodeMaleHash = 0x705E61F2;
     public const uint FreemodeFemaleHash = 0x9C9EFFD8;
 
+    /// <summary>
+    /// Determines whether the specified ped is valid and can be given tasks.
+    /// </summary>
+    /// <param name="ped">
+    /// The ped to check.
+    /// </param>
+    /// <returns>
+    /// <para><see langword="true"/> if all of the following are met:</para>
+    /// <list type="bullet">
+    /// <item>The ped is not <see langword="null"/>.</item>
+    /// <item>
+    /// The ped is valid (<see cref="IHandleable.IsValid"/> returns <see langword="true"/>).
+    /// </item>
+    /// <item>The ped is not dead.</item>
+    /// <item>The ped's health is above <see cref="Ped.InjuryHealthThreshold"/>.</item>
+    /// </list>
+    /// </returns>
     public static bool IsInjured([NotNullWhen(false)] this Ped? ped)
     {
         return ped == null
             || Natives.IsPedInjured(ped.Handle);
+    }
+
+    public static bool IsSittingInVehicle(this Ped ped, Vehicle vehicle)
+    {
+        Checks.Exists(ped);
+        Checks.Exists(vehicle);
+
+        return Natives.IsPedSittingInVehicle(ped.Handle, vehicle.Handle);
     }
 
     public static bool IsOccupied(this Ped ped)

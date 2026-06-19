@@ -195,7 +195,10 @@ internal partial class PoliceUnit : IResponseUnit
             }
         }
 
-        _vehicle.Cleanup(force);
+        if (force)
+        {
+            _vehicle.Cleanup(true);
+        }
         _vehicleBlip.Cleanup();
     }
 }

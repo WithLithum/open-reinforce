@@ -1,1 +1,2 @@
 - Implement configuration loading
+- Implement the rest of Watch manager routines (follow player etc.)

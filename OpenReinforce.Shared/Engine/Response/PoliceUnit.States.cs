@@ -16,11 +16,7 @@ partial class PoliceUnit
         None,
         GoingToDestination,
         ApproachingDestination,
-        Arrived,
-        Engaging,
-        ReturnToCar,
-        EnterCar,
-        Finished
+        Arrived
     }
 
     [Conditional("DEBUG")]
@@ -36,9 +32,6 @@ partial class PoliceUnit
             PoliceUnitState.GoingToDestination => Color.Yellow,
             PoliceUnitState.ApproachingDestination => Color.Blue,
             PoliceUnitState.Arrived => Color.White,
-            PoliceUnitState.Engaging => Color.Purple,
-            PoliceUnitState.ReturnToCar => Color.Gray,
-            PoliceUnitState.EnterCar => Color.DarkCyan,
             _ => Color.Blue,
         };
     }
@@ -94,35 +87,6 @@ partial class PoliceUnit
                     _vehicleBlip!.StopFlashing();
                 }
                 break;
-            case PoliceUnitState.Engaging:
-                _engageTimerRunning = false;
-                break;
-            case PoliceUnitState.ReturnToCar:
-                _waitUntil = DateTimeOffset.UtcNow + WrapWaitLength;
-                break;
-            case PoliceUnitState.EnterCar:
-                _waitUntil = DateTimeOffset.UtcNow + WrapWaitLength;
-                _peds!.ForEach(x =>
-                {
-                    if (!x.Ped.IsInjured())
-                    {
-                        x.Ped.Tasks.EnterVehicle(_vehicle, x.Seat);
-                    }
-                });
-                break;
-            case PoliceUnitState.Finished:
-                foreach (var (ped, seat) in _peds!)
-                {
-                    if (ped.Exists() && !ped.IsInAnyVehicle(false))
-                    {
-                        Natives.SetPedIntoVehicle(ped.Handle, _vehicle!.Handle, seat);
-                    }
-                }
-
-                _vehicleBlip.Cleanup();
-                _vehicle!.IsSirenOn = false;
-                _driver!.Tasks.CruiseWithVehicle(_vehicle, 8.3f, VehicleDrivingFlags.Normal);
-                break;
         }
 
         SetTestBlipColor();
@@ -140,18 +104,6 @@ partial class PoliceUnit
                 break;
             case PoliceUnitState.Arrived:
                 Arrived();
-                break;
-            case PoliceUnitState.Engaging:
-                Engaging();
-                break;
-            case PoliceUnitState.ReturnToCar:
-                ReturnToCar();
-                break;
-            case PoliceUnitState.EnterCar:
-                EnterCar();
-                break;
-            case PoliceUnitState.Finished:
-                Finished();
                 break;
         }
     }
@@ -275,145 +227,17 @@ partial class PoliceUnit
                 continue;
             }
 
-            if (p.IsInAnyVehicle(false))
+            if (p.IsSittingInVehicle(_vehicle!))
             {
                 p.Tasks.LeaveVehicle(LeaveVehicleFlags.None);
                 continue;
             }
 
-            if (p.IsOccupied())
-            {
-                SwitchToState(PoliceUnitState.Engaging);
-                return;
-            }
+            OpenReinforcePlugin.WatchManager.Add(p, _vehicle, _peds[i].Seat);
+            _peds.RemoveAt(i);
         }
 
-        if (DateTimeOffset.UtcNow >= _waitUntil)
-        {
-            SwitchToState(PoliceUnitState.ReturnToCar);
-
-            if (_vehicle.Exists() && _vehicle!.IsAlive)
-            {
-                foreach (var (ped, _) in _peds)
-                {
-                    if (!ped.Exists() || ped.IsInjured)
-                    {
-                        continue;
-                    }
-
-                    var vehPos = _vehicle.Position;
-                    Natives.TaskFollowNavMeshToCoord(ped.Handle,
-                        vehPos.X,
-                        vehPos.Y,
-                        vehPos.Z,
-                        0.35f,
-                        -1,
-                        7f,
-                        4 /* Don't wait for entire navmesh */,
-                        _vehicle.Heading);
-                }
-            }
-
-            return;
-        }
-    }
-
-    private void Engaging()
-    {
-        var hasOccupied = false;
-        for (int i = 0; i < _peds!.Count; i++)
-        {
-            var p = _peds[i].Ped;
-            if (!p.Exists())
-            {
-                continue;
-            }
-
-            if (p.IsOccupied())
-            {
-                hasOccupied = true;
-
-                break;
-            }
-        }
-
-        if (!hasOccupied)
-        {
-            if (!_engageTimerRunning)
-            {
-                _waitUntil = DateTimeOffset.UtcNow + WaitLength;
-                _engageTimerRunning = true;
-            }
-            else
-            {
-                SwitchToState(PoliceUnitState.Arrived);
-            }
-        }
-    }
-
-    private void ReturnToCar()
-    {
-        if (Natives.IsEntityDead(_vehicle!.Handle, false)
-            || _driver.IsInjured())
-        {
-            Cleanup(false);
-            return;
-        }
-
-        if (_peds!.FindIndex(x => !x.Ped.IsInjured() && x.Ped.DistanceTo(_vehicle.Position) > 20.5f)
-            == -1)
-        {
-#if DEBUG
-            Game.DisplayNotification("Entering car.");
-#endif
-            SwitchToState(PoliceUnitState.EnterCar);
-            return;
-        }
-        else if (DateTimeOffset.UtcNow >= _waitUntil)
-        {
-#if DEBUG
-            Game.DisplayNotification("Timeout wrap.");
-#endif
-            SwitchToState(PoliceUnitState.Finished);
-            return;
-        }
-    }
-
-    private void EnterCar()
-    {
-        if (Natives.IsEntityDead(_vehicle!.Handle, false)
-            || _driver.IsInjured())
-        {
-            Cleanup(false);
-            return;
-        }
-
-#if DEBUG
-        if (DateTimeOffset.UtcNow >= _waitUntil)
-        {
-            Game.DisplayNotification("Timeout when sitting in.");
-        }
-#endif
-
-        if (_peds!.FindIndex(x => !x.Ped.IsInjured()
-                && !Natives.IsPedSittingInVehicle(x.Ped.Handle, _vehicle.Handle))
-            == -1
-            || DateTimeOffset.UtcNow >= _waitUntil)
-        {
-            SwitchToState(PoliceUnitState.Finished);
-        }
-    }
-
-    private void Finished()
-    {
-        if (!_vehicle.Exists()
-            || !_vehicle!.IsOnScreen
-            || _vehicle.DistanceTo2D(Game.LocalPlayer.Character) >= CleanupThreshold)
-        {
-            Cleanup(true);
-        }
-
-        if (!_driver.Exists() || _driver!.IsInjured)
+        if (_peds!.Count == 0)
         {
             Cleanup(false);
         }
