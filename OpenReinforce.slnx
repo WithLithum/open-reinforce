@@ -4,19 +4,15 @@
     <Platform Name="x64" />
   </Configurations>
   <Folder Name="/Documentation/">
-    <File Path="BUILDING.md" />
     <File Path="COPYING" />
     <File Path="COPYING.LESSER" />
     <File Path="README.md" />
-    <File Path="TODO.txt" />
   </Folder>
   <Project Path="FrReader/FrReader.csproj">
     <Platform Solution="Debug|x64" Project="x64" />
   </Project>
-  <Project Path="OpenReinforce.TestPlugin/OpenReinforce.TestPlugin.csproj">
-    <Platform Solution="*|x64" Project="x64" />
-  </Project>
+  <Project Path="OpenReinforce.Engine.Data/OpenReinforce.Engine.Data.csproj" Id="14a6ac0b-2cef-4527-baf8-fe9a0603afe6" />
   <Project Path="OpenReinforce/OpenReinforce.csproj">
     <Platform Solution="*|x64" Project="x64" />
-</Project>
+  </Project>
 </Solution>

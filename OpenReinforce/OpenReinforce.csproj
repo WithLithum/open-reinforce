@@ -30,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="../OpenReinforce.Shared/**/*.cs" />
+        <ProjectReference Include="..\OpenReinforce.Engine.Data\OpenReinforce.Engine.Data.csproj" />
     </ItemGroup>
 
 </Project>
