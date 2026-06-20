@@ -1,15 +1,18 @@
 #if GTA
+using OpenReinforce.Native;
 using OpenReinforce.Utilities;
 using Rage;
 using RAGENativeUI;
 using System.Windows.Forms;
 using WithLithum.NativeWrapper;
 
-namespace OpenReinforce.Shared.Engine.Scene;
+namespace OpenReinforce.Engine.Scene;
 
 internal sealed class WatchManager
 {
-    private const float FaceToFaceThreshold = 15f;
+    private const float FaceToFaceThreshold = 10f;
+    private const float FollowThreshold = 10.5f;
+
     private static readonly TimeSpan FaceToFaceTimeThreshold = TimeSpan.FromMilliseconds(500);
     private static readonly TimeSpan OccupiedTimeout = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan DismissTimeout = TimeSpan.FromSeconds(20);
@@ -152,8 +155,7 @@ internal sealed class WatchManager
         var veh = info.Vehicle!;
 
         // Checks for timeout or unsatisfactory conditions with the car.
-        if (info.State is WatchPedState.ReturningToVehicle
-            or WatchPedState.EnteringVehicle)
+        if (info.State is WatchPedState.EnteringVehicle)
         {
             if (DateTimeOffset.UtcNow >= info.Timeout)
             {
@@ -170,22 +172,11 @@ internal sealed class WatchManager
                 || Natives.IsVehicleStuckOnRoof(veh.Handle))
             {
                 info.State = WatchPedState.Dismissed;
+                return true;
             }
-
-            return true;
         }
 
-        if (info.State == WatchPedState.ReturningToVehicle
-            && info.Ped.DistanceTo(veh) <= 17.5f)
-        {
-            // Off we go to Entering Vehicle state.
-
-            info.Ped.Tasks.EnterVehicle(veh, info.VehicleSeat);
-            info.Timeout = DateTimeOffset.UtcNow + DismissTimeout;
-            info.State = WatchPedState.EnteringVehicle;
-            return true;
-        }
-        else if (info.State == WatchPedState.EnteringVehicle
+        if (info.State == WatchPedState.EnteringVehicle
             && info.Ped.IsSittingInVehicle(veh))
         {
             // Off we go to Awaiting Dismiss state state.
@@ -226,11 +217,38 @@ internal sealed class WatchManager
         var pc = Game.LocalPlayer.Character;
         if (ped.IsInjured() || ped.IsOccupied())
         {
+            info.TaskedToFollow = false;
             return;
         }
 
+        // Check for ped distance and tell them to follow.
+        var pedDistance = ped.DistanceTo(pc);
+        if (pedDistance >= FollowThreshold && !info.TaskedToFollow)
+        {
+            ped.Tasks.Clear();
+            // Tell the ped to get over to the player.
+            Natives.TaskFollowToOffsetOfEntity(ped.Handle,
+                pc.Handle,
+                Vector3.RelativeFront.X,
+                Vector3.RelativeFront.Y,
+                Vector3.RelativeFront.Z,
+                2.0f,
+                -1,
+                FollowThreshold,
+                true
+                );
+            ped.Tasks.FollowToOffsetFromEntity(pc, Vector3.RelativeFront);
+            info.TaskedToFollow = true;
+        }
+        else if (pedDistance < FollowThreshold && info.TaskedToFollow)
+        {
+            ped.Tasks.Clear();
+            ped.Tasks.StandStill(-1);
+            info.TaskedToFollow = false;
+        }
+
         if (!facingAnybody
-            && ped.DistanceTo(Game.LocalPlayer.Character) <= 6.5f
+            && ped.DistanceTo(pc) <= 6.5f
             && Natives.IsPedFacingPed(pc.Handle, ped.Handle, FaceToFaceThreshold))
         {
             if (_currentlyFacingPed != info.Ped.Handle)
@@ -248,7 +266,7 @@ internal sealed class WatchManager
             Game.DisplayHelp($"Hold down ~{Keys.U.GetInstructionalId()}~ to dismiss this collague.",
                 500);
 
-            if (_dismissCurrentKey.IsHeldDown())
+            if (_dismissCurrentKey.IsHeldDown() && _currentlyFacingPed == info.Ped.Handle)
             {
                 Game.HideHelp();
                 DismissCollague(info, index);
@@ -258,6 +276,8 @@ internal sealed class WatchManager
 
     private void DismissCollague(WatchPedInfo info, int index)
     {
+        info.Ped.Tasks.ClearImmediately();
+
         if (info.Ped.IsInjured())
         {
             info.State = WatchPedState.Dismissed;
@@ -267,11 +287,14 @@ internal sealed class WatchManager
 
         if (info.Vehicle.Exists() && info.Vehicle!.IsAlive)
         {
-            info.State = WatchPedState.ReturningToVehicle;
-            info.Ped.Tasks.FollowNavigationMeshToPosition(info.Vehicle.Position,
-                info.Vehicle.Heading,
-                1f,
-                15f);
+            info.State = WatchPedState.EnteringVehicle;
+            Natives.TaskEnterVehicle(info.Ped.Handle,
+                info.Vehicle.Handle,
+                15000,
+                info.VehicleSeat,
+                2.0f,
+                (int)(EnterExitVehicleOptions.BlockSeatShuffling | EnterExitVehicleOptions.WrapIfDoorIsBlocked),
+                null!);
             info.Blip.Cleanup();
             info.Timeout = DateTimeOffset.UtcNow + DismissTimeout;
             return;

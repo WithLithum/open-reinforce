@@ -1,5 +1,5 @@
 #if GTA
-namespace OpenReinforce.Shared.Engine.Scene;
+namespace OpenReinforce.Engine.Scene;
 
 using Rage;
 
@@ -14,6 +14,8 @@ internal sealed class WatchPedInfo
     public required Ped Ped { get; set; }
 
     public DateTimeOffset? Timeout { get; set; }
+
+    public bool TaskedToFollow { get; set; }
 }
 
 #endif

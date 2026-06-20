@@ -1,4 +1,5 @@
 #if GTA
+using OpenReinforce.Native;
 using OpenReinforce.Utilities;
 using Rage;
 using RAGENativeUI;
@@ -160,7 +161,15 @@ partial class PoliceUnit
                 _wrapEnabled = false;
 
                 // Wrap
-                _vehicle!.Position = _destination;
+                FindAlternativePosIfNeeded();
+                Natives.SetEntityCoords(_vehicle!.Handle,
+                    _destination.X,
+                    _destination.Y,
+                    _destination.Z,
+                    false,
+                    false,
+                    false,
+                    true);
                 SwitchToState(PoliceUnitState.ApproachingDestination);
                 return false;
             }
@@ -172,6 +181,35 @@ partial class PoliceUnit
         }
 
         return true;
+    }
+
+    private void FindAlternativePosIfNeeded()
+    {
+        if (Natives.IsPositionOccupied(_destination.X,
+                            _destination.Y,
+                            _destination.Z,
+                            25f,
+                            false,
+                            true,
+                            true,
+                            false,
+                            false,
+                            0,
+                            true
+                            ))
+        {
+            // Look for an alternative position
+            var wrapTarget = _destination.Around2D(5f, 35f);
+            if (PathFind.GetNearestVehicleNodeWithHeading(wrapTarget,
+                out var newTarget,
+                out _,
+                VehicleNodeFilters.IncludeSwitchedOffNodes,
+                0.85f,
+                35))
+            {
+                _destination = newTarget;
+            }
+        }
     }
 
     private void ApproachDestination()

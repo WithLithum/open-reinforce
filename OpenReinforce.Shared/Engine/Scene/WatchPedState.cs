@@ -1,10 +1,9 @@
-namespace OpenReinforce.Shared.Engine.Scene;
+namespace OpenReinforce.Engine.Scene;
 
 internal enum WatchPedState
 {
     None,
     Engaged,
-    ReturningToVehicle,
     EnteringVehicle,
     AwaitingDismiss,
     Dismissed
