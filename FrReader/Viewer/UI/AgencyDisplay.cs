@@ -3,7 +3,7 @@ using Spectre.Console;
 
 namespace OpenReinforce.Viewer.UI;
 
-internal sealed partial class AgencyDisplay
+internal sealed partial class AgencyDisplay : IDisplay
 {
     private readonly FrAgency[] _agencies;
     private Page _currentPage;

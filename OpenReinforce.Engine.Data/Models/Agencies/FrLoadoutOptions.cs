@@ -1,9 +1,13 @@
-namespace OpenReinforce.Engine.Data.Models.Agencies;
+// SPDX-FileCopyrightText: 2026 WithLithum
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-public enum FrLoadoutOptions
+namespace OpenReinforce.Engine.Data.Models.Agencies
 {
-    RespondsAsTransport,
-    RespondsAsBackup,
-    SpawnsAmbiently,
-    SWAT
+    public enum FrLoadoutOptions
+    {
+        RespondsAsTransport,
+        RespondsAsBackup,
+        SpawnsAmbiently,
+        SWAT
+    }
 }

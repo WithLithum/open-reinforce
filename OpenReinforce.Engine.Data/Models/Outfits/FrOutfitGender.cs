@@ -1,11 +1,15 @@
+// SPDX-FileCopyrightText: 2026 WithLithum
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 using System.Xml.Serialization;
 
-namespace OpenReinforce.Engine.Data.Models.Outfits;
-
-public enum FrOutfitGender
+namespace OpenReinforce.Engine.Data.Models.Outfits
 {
-    [XmlEnum("male")]
-    Male,
-    [XmlEnum("female")]
-    Female
+    public enum FrOutfitGender
+    {
+        [XmlEnum("male")]
+        Male,
+        [XmlEnum("female")]
+        Female
+    }
 }

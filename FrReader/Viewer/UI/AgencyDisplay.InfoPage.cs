@@ -15,6 +15,12 @@ partial class AgencyDisplay
                 _selectedAgency = null;
                 _currentPage = Page.Home;
                 break;
+            case ConsoleKey.L:
+                if (_selectedAgency!.Loadouts != null)
+                {
+                    Displays.Run(new LoadoutDisplay(_selectedAgency.Loadouts));
+                }
+                break;
             case ConsoleKey.P:
                 NavigateToParent();
                 break;
