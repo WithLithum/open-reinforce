@@ -8,20 +8,20 @@ internal sealed class KeyDetector
 {
     private static readonly TimeSpan HoldDownInterval = TimeSpan.FromMilliseconds(1500);
 
-    private readonly Keys _key;
-
     private bool _isDown;
     private bool _reset;
     private DateTimeOffset _checkTime;
 
     public KeyDetector(Keys key)
     {
-        _key = key;
+        Key = key;
     }
+
+    public Keys Key { get; }
 
     public void Process()
     {
-        var keyDown = Game.IsKeyDownRightNow(_key);
+        var keyDown = Game.IsKeyDownRightNow(Key);
         if (_isDown != keyDown)
         {
             _reset = false;

@@ -12,6 +12,8 @@ namespace OpenReinforce.Engine.Response;
 
 partial class PoliceUnit
 {
+    private readonly KeyDetector _wrapKey = new(Keys.Back);
+
     private enum PoliceUnitState
     {
         None,
@@ -82,7 +84,6 @@ partial class PoliceUnit
                     7.5f);
                 break;
             case PoliceUnitState.Arrived:
-                _waitUntil = DateTimeOffset.UtcNow + WaitLength;
                 if (_vehicleBlip.Exists())
                 {
                     _vehicleBlip!.StopFlashing();
@@ -143,41 +144,28 @@ partial class PoliceUnit
 
     private bool WrapRoutine()
     {
-        if (_wrapEnabled)
+        if (_wrapEnabled && _wrapKey.IsHeldDown())
         {
-            var isKeyDown = Game.IsKeyDownRightNow(Keys.Back);
-            if (!_wrapKeyDown && isKeyDown)
-            {
-                _wrapKeyDown = true;
-                _wrapWait += WrapKeyDownLength;
-            }
-            else if (!isKeyDown)
-            {
-                _wrapKeyDown = false;
-            }
+            _wrapKey.Reset();
+            _wrapEnabled = false;
 
-            if (_wrapKeyDown && DateTimeOffset.UtcNow >= _wrapWait)
-            {
-                _wrapEnabled = false;
-
-                // Wrap
-                FindAlternativePosIfNeeded();
-                Natives.SetEntityCoords(_vehicle!.Handle,
-                    _destination.X,
-                    _destination.Y,
-                    _destination.Z,
-                    false,
-                    false,
-                    false,
-                    true);
-                SwitchToState(PoliceUnitState.ApproachingDestination);
-                return false;
-            }
+            // Wrap
+            FindAlternativePosIfNeeded();
+            Natives.SetEntityCoords(_vehicle!.Handle,
+                _destination.X,
+                _destination.Y,
+                _destination.Z,
+                false,
+                false,
+                false,
+                true);
+            SwitchToState(PoliceUnitState.ApproachingDestination);
+            return false;
         }
         else if (DateTime.UtcNow >= _wrapWait)
         {
             _wrapEnabled = true;
-            Game.DisplayHelp($"If the reinforcement unit is taking too long to arrive, hold ~{Keys.Back.GetInstructionalId()}~ to spawn it immediately.");
+            Game.DisplayHelp($"If the reinforcement unit is taking too long to arrive, hold ~{_wrapKey.Key.GetInstructionalId()}~ to spawn it immediately.");
         }
 
         return true;

@@ -15,26 +15,20 @@ namespace OpenReinforce.Engine.Response;
 internal partial class PoliceUnit : IResponseUnit
 {
     private static readonly TimeSpan WrapWaitLength = TimeSpan.FromSeconds(30);
-    private static readonly TimeSpan WrapKeyDownLength = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan AudioLockLength = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan WaitLength = TimeSpan.FromSeconds(10);
 
     private const float ArrivalThreshold = 25f;
-    private const float CleanupThreshold = 300f;
     private const float ApproachThreshold = 85f;
 
     private const float MinSpawnDistance = 200f;
-    private const float MaxSpawnDistance = 700f;
+    private const float MaxSpawnDistance = 500f;
 
     private PoliceUnitState _state;
     private Vector3 _destination;
 
     private bool _wrapEnabled;
-    private bool _wrapKeyDown;
     private DateTimeOffset _wrapWait;
-
-    private bool _engageTimerRunning;
-    private DateTimeOffset _waitUntil;
 
     private Vehicle? _vehicle;
     private List<PedInfo>? _peds;
