@@ -9,8 +9,8 @@ using OpenReinforce.Engine.Data.Models;
 
 namespace OpenReinforce.Engine.Data
 {
-    public class FrContainerDataLoader<T, TContainer>
-        where T : class, IFrIdentified
+    public class FrSimpleDataLoader<T, TContainer>
+        where T : class
         where TContainer : class, IFrDataRoot<T>, new()
     {
         private readonly XmlSerializer _serializer = new XmlSerializer(typeof(TContainer));
@@ -70,12 +70,15 @@ namespace OpenReinforce.Engine.Data
                 return;
             }
 
-            // Override existing script names when adding.
             foreach (var item in result.Items)
             {
-                list.RemoveAll(existing => existing.ScriptName == item.ScriptName);
+                FilterItem(item, list);
                 list.Add(item);
             }
+        }
+
+        protected virtual void FilterItem(T item, List<T> list)
+        {
         }
     }
 }
