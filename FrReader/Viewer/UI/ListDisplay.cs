@@ -22,6 +22,7 @@ internal abstract class ListDisplay<T> : IDisplay
         if (_values.Count == 0)
         {
             RunEmptyLoadouts();
+            return;
         }
 
         var value = _values[_currentIndex];
