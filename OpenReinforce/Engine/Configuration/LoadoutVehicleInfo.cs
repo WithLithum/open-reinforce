@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using OpenReinforce.Engine.Data.Models.Agencies;
 using OpenReinforce.Utilities;
 using Rage;
+using WithLithum.NativeWrapper;
 
 namespace OpenReinforce.Engine.Configuration;
 
@@ -22,7 +23,37 @@ internal sealed record LoadoutVehicleInfo : IChanced
 
     public string? Weapon { get; init; }
 
+    public void Apply(Vehicle vehicle)
+    {
+        // TODO implement modkit liveries.
+        if (Liveries != null)
+        {
+            var liveryNumber = ItemSelector.PickByUniform(Liveries);
+            Natives.SetVehicleLivery(vehicle.Handle, liveryNumber);
+        }
+
+        ApplyInternalExtras(vehicle);
+
+        // TODO implement weapons.
+    }
+
+    private void ApplyInternalExtras(Vehicle vehicle)
+    {
+        if (Extras != null)
+        {
+            foreach (var extra in Extras)
+            {
+                if (Natives.DoesExtraExist(vehicle.Handle, extra))
+                {
+                    // Enable extra.
+                    Natives.SetVehicleExtra(vehicle.Handle, extra, false);
+                }
+            }
+        }
+    }
+
     #region Conversion Helpers
+
 
     private static IReadOnlyList<int> EvaluateExtras(FrLoadoutVehicle fr)
     {

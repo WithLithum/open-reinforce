@@ -11,6 +11,7 @@ file_header_template = SPDX-FileCopyrightText: 2026 WithLithum\nSPDX-License-Ide
 [*.cs]
 dotnet_diagnostic.IDE0160.severity = none
 dotnet_diagnostic.IDE0161.severity = warning
+dotnet_diagnostic.IDE0290.severity = none
 
 csharp_style_namespace_declarations = file_scoped
 csharp_style_prefer_primary_constructors = false

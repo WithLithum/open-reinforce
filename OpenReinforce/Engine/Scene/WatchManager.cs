@@ -1,4 +1,6 @@
-#if GTA
+// SPDX-FileCopyrightText: 2026 WithLithum
+// SPDX-License-Identifier: LGPL-3.0-or-later
+
 using OpenReinforce.Native;
 using OpenReinforce.Utilities;
 using Rage;
@@ -313,4 +315,3 @@ internal sealed class WatchManager
         }
     }
 }
-#endif

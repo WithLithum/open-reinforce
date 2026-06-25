@@ -1,5 +1,6 @@
-#if !NET6_0_OR_GREATER 
+#pragma warning disable IDE0130
 namespace System.Runtime.CompilerServices;
+#pragma warning restore IDE0130
 
 [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
 internal sealed class CallerArgumentExpressionAttribute : Attribute
@@ -11,4 +12,3 @@ internal sealed class CallerArgumentExpressionAttribute : Attribute
 
     public string ParameterName { get; }
 }
-#endif

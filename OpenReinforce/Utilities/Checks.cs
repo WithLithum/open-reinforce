@@ -1,15 +1,11 @@
-#if GTA
 using Rage;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.Runtime.CompilerServices;
-#endif
 
 namespace OpenReinforce.Utilities;
 
 public static class Checks
 {
-#if GTA
     public static void Exists([NotNull] IHandleable? handleable,
         [CallerArgumentExpression(nameof(handleable))] string? argumentName = null)
     {
@@ -41,5 +37,4 @@ public static class Checks
         throw new ArgumentException("An invalid, dead or injured ped is not allowed.",
             argumentName);
     }
-#endif
 }

@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: 2026 WithLithum
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#if GTA
-
 using System.Drawing;
 using Rage;
 using RAGENativeUI;
@@ -99,7 +97,7 @@ internal static class ReinforceMenu
         PriorityItem.Items.Clear();
 
         bool isPursuitActive;
-        if (OpenReinforcePlugin.IsTestPlugin)
+        if (!OpenReinforcePlugin.IsTestPlugin)
         {
             var activePursuit = FrFunctions.GetActivePursuit();
             isPursuitActive = !activePursuit.IsNull && FrFunctions.IsPursuitStillRunning(activePursuit);
@@ -128,5 +126,3 @@ internal static class ReinforceMenu
         }
     }
 }
-
-#endif

@@ -1,4 +1,3 @@
-#if GTA
 using Rage;
 using System.Diagnostics.CodeAnalysis;
 using WithLithum.NativeWrapper;
@@ -106,4 +105,3 @@ public static class PedExtensions
         }
     }
 }
-#endif

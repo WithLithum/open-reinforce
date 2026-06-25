@@ -1,4 +1,3 @@
-#if GTA
 using Rage;
 using WithLithum.NativeWrapper;
 
@@ -56,4 +55,3 @@ public static class EntityExtensions
         entity!.Delete();
     }
 }
-#endif

@@ -1,33 +1,37 @@
-#if GTA
-#if LSPDFR
 using LSPD_First_Response.Mod.API;
-#endif
 
 namespace OpenReinforce.Native.Interop;
 
-internal readonly struct FrHandle
+internal readonly struct FrHandle : IEquatable<FrHandle>
 {
-#if LSPDFR
-    private readonly LHandle? _inner;
-#else
     private readonly object? _inner;
-#endif
 
-#if LSPDFR
-    internal FrHandle(LHandle? inner)
-#else
     internal FrHandle(object? inner)
-#endif
     {
+        if (inner != null && inner is not LHandle)
+        {
+            throw new ArgumentException("The specified handle is not LHandle.");
+        }
+
         _inner = inner;
     }
 
-#if LSPDFR
-    internal LHandle? Inner => _inner;
-#else
     internal object? Inner => _inner;
-#endif
 
     public bool IsNull => Inner == null;
+
+    public bool Equals(FrHandle other)
+    {
+        return _inner == other._inner;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is FrHandle other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return _inner?.GetHashCode() ?? 0;
+    }
 }
-#endif

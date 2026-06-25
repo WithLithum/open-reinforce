@@ -1,4 +1,3 @@
-#if GTA
 using Rage;
 using System.Windows.Forms;
 
@@ -45,4 +44,3 @@ internal sealed class KeyDetector
         return !_reset && _isDown && DateTimeOffset.UtcNow >= _checkTime;
     }
 }
-#endif

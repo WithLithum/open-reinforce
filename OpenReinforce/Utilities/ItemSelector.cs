@@ -4,7 +4,17 @@ namespace OpenReinforce.Utilities;
 
 internal static class ItemSelector
 {
-    internal static T PickByChance<T>(IList<T> items) where T : IChanced
+    internal static T PickByUniform<T>(IReadOnlyList<T> items)
+    {
+        if (items.Count == 0)
+        {
+            throw new ArgumentException("Attempting to pick from an empty list.", nameof(items));
+        }
+
+        return items[MathHelper.GetRandomInteger(0, items.Count - 1)];
+    }
+
+    internal static T PickByChance<T>(IReadOnlyList<T> items) where T : IChanced
     {
         if (items.Count == 0)
         {

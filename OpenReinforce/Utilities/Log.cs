@@ -21,4 +21,10 @@ internal static class Log
     {
         Game.LogTrivial($"[OpenReinforce/WARN] {message}");
     }
+
+    internal static void Error(Exception ex, string message)
+    {
+        Game.LogTrivial($"[OpenReinforce/ERROR] {message}");
+        Game.LogTrivial(ex.ToString());
+    }
 }

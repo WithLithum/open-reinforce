@@ -4,13 +4,13 @@
 using OpenReinforce.Engine.Data.Models.Regions;
 using OpenReinforce.UI;
 using OpenReinforce.Utilities;
-using Rage;
 
 namespace OpenReinforce.Engine.Configuration;
 
 internal sealed class LoadoutManager
 {
     private readonly Dictionary<string, string> _zoneNameToRegionName = [];
+
     private readonly Dictionary<string, Dictionary<ReinforceType, List<LoadoutInfo>>> _regionToLoadout = [];
 
     public void AddRegion(FrRegion region)

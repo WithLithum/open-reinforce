@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 WithLithum
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#if GTA
+using OpenReinforce.Engine.Configuration;
 using OpenReinforce.Native.Interop;
 using OpenReinforce.Utilities;
 using Rage;
@@ -20,6 +20,8 @@ internal partial class PoliceUnit : IResponseUnit
     private const float MinSpawnDistance = 200f;
     private const float MaxSpawnDistance = 500f;
 
+    private readonly LoadoutInfo _loadout;
+
     private PoliceUnitState _state;
     private Vector3 _destination;
 
@@ -32,6 +34,11 @@ internal partial class PoliceUnit : IResponseUnit
     private Blip? _vehicleBlip;
 
     private readonly record struct PedInfo(Ped Ped, int Seat);
+
+    public PoliceUnit(LoadoutInfo loadout)
+    {
+        _loadout = loadout;
+    }
 
     public bool IsRunning { get; private set; }
 
@@ -76,18 +83,20 @@ internal partial class PoliceUnit : IResponseUnit
         var spawnPos = World.GetNextPositionOnStreet(destination.Around2D(
             MathHelper.GetRandomSingle(MinSpawnDistance, MaxSpawnDistance)));
 
+        var vehicleModel = ItemSelector.PickByChance(_loadout.Vehicles);
+
         // Create vehicle
         // TODO replace models with actual vehicles & peds
-        _vehicle = new Vehicle("POLICE3", spawnPos)
-        {
-            IsPersistent = true
-        };
+        _vehicle = new Vehicle(vehicleModel.ModelHash, spawnPos);
         if (!_vehicle.IsValid())
         {
             Game.LogTrivial("OpenReinforce: Cop car spawn failed");
             Game.LogTrivial("OpenReinforce: Check your configured vehicle model name");
             return false;
         }
+        _vehicle.IsPersistent = true;
+        vehicleModel.Apply(_vehicle);
+
         _vehicleBlip = _vehicle.AttachBlip();
         _vehicleBlip.IsFriendly = true;
         _vehicleBlip.Flash(1000, 0);
@@ -97,13 +106,14 @@ internal partial class PoliceUnit : IResponseUnit
              - 1;
 
         var seatIndex = -1;
-        var numPeds = MathHelper.GetRandomInteger(1, 2);
+        var numPeds = MathHelper.GetRandomInteger(_loadout.MaximumPeds,
+            _loadout.MaximumPeds);
         _peds = new List<PedInfo>(numPeds);
         for (int i = 0; i < numPeds; i++)
         {
             if (seatIndex > maxSeats)
             {
-                Game.LogTrivial("OpenReinforce: NumPeds greater than vehicle seats! Not spawning more.");
+                Log.Warn("NumPeds greater than vehicle seats! Not spawning more.");
                 break;
             }
 
@@ -111,7 +121,7 @@ internal partial class PoliceUnit : IResponseUnit
             model.LoadAndWait();
             if (!model.IsLoaded)
             {
-                Game.LogTrivial("OpenReinforce: Cop model load failed. Does it exist?");
+                Log.Warn("Cop model load failed. Does it exist?");
                 return false;
             }
 
@@ -197,4 +207,3 @@ internal partial class PoliceUnit : IResponseUnit
         _vehicleBlip.Cleanup();
     }
 }
-#endif

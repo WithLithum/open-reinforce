@@ -1,9 +1,8 @@
 // SPDX-FileCopyrightText: 2026 WithLithum
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#if GTA
-
 using OpenReinforce.Engine;
+using OpenReinforce.Engine.Configuration;
 using OpenReinforce.Engine.Scene;
 using OpenReinforce.UI;
 using Rage;
@@ -18,11 +17,13 @@ internal static class OpenReinforcePlugin
 
     public static DismissManager DismissManager { get; } = new();
     public static WatchManager WatchManager { get; } = new();
+    public static LoadoutManager LoadoutManager { get; } = new();
 
     public static void Initialize(bool testPlugin)
     {
         IsTestPlugin = testPlugin;
 
+        Initializer.Initialize();
         ReinforceMenu.InitializeComponents();
 
         GameFiber.StartNew(static () =>
@@ -63,4 +64,3 @@ internal static class OpenReinforcePlugin
         CancelSource.Dispose();
     }
 }
-#endif

@@ -1,2 +1,13 @@
-- Implement configuration loading
-- Implement the rest of Watch manager routines (follow player etc.)
+Features:
+---------
+
+- Implement outfits and ped model support.
+- Find a way how we can use modkit liveries.
+- Separate approach and drive logic from police unit.
+- Implement fire brigade and ambulances.
+- Implement prisoner transport.
+
+Watch manager bugs:
+-------------------
+* Fix peds sometimes not getting out of car on arrival.
+* Fix backspace quick spawn not working.

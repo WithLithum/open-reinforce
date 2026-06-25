@@ -1,4 +1,3 @@
-#if GTA
 using OpenReinforce.Utilities;
 using Rage;
 
@@ -75,4 +74,3 @@ internal sealed class DismissManager
         }
     }
 }
-#endif
