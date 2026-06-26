@@ -12,7 +12,8 @@ namespace OpenReinforce.Engine.Scene;
 
 internal sealed class WatchManager
 {
-    private const float FaceToFaceThreshold = 10f;
+    private const float FaceToFaceAngles = 9.5f;
+    private const float FaceToFaceDistance = 7.5f;
     private const float FollowThreshold = 6.5f;
 
     private static readonly TimeSpan FaceToFaceTimeThreshold = TimeSpan.FromMilliseconds(500);
@@ -233,8 +234,8 @@ internal sealed class WatchManager
         ProcessFollow(info, ped, pc);
 
         if (!facingAnybody
-            && ped.DistanceTo(pc) <= 6.5f
-            && Natives.IsPedFacingPed(pc.Handle, ped.Handle, FaceToFaceThreshold))
+            && ped.DistanceTo(pc) <= FaceToFaceDistance
+            && Natives.IsPedFacingPed(pc.Handle, ped.Handle, FaceToFaceAngles))
         {
             if (_currentlyFacingPed != info.Ped.Handle)
             {
