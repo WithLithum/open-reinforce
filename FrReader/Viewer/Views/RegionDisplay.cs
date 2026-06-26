@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using OpenReinforce.Engine.Data.Models.Regions;
+using OpenReinforce.Viewer.UI;
 using Spectre.Console;
 
-namespace OpenReinforce.Viewer.UI;
+namespace OpenReinforce.Viewer.Views;
 
 internal class RegionDisplay : ListDisplay<FrRegion>
 {

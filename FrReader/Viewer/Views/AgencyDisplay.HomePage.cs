@@ -1,7 +1,7 @@
 using OpenReinforce.Engine.Data.Models.Agencies;
 using Spectre.Console;
 
-namespace OpenReinforce.Viewer.UI;
+namespace OpenReinforce.Viewer.Views;
 
 partial class AgencyDisplay
 {
@@ -10,7 +10,7 @@ partial class AgencyDisplay
     private int _homePageStart;
 
     private void RunHomePage()
-    {        
+    {
         var actualCount = HomePageSize;
         if (_homePageStart + HomePageSize >= _agencies.Length)
         {

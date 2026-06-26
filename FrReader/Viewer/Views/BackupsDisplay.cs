@@ -3,9 +3,10 @@
 
 using OpenReinforce.Engine.Data.Models.Response;
 using OpenReinforce.Engine.Data.Utilities;
+using OpenReinforce.Viewer.UI;
 using Spectre.Console;
 
-namespace OpenReinforce.Viewer.UI;
+namespace OpenReinforce.Viewer.Views;
 
 internal sealed class BackupsDisplay : ListDisplay<BackupsDisplay.Shrimp>
 {

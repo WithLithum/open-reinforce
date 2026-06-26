@@ -1,5 +1,6 @@
 using OpenReinforce.Engine.Data;
 using OpenReinforce.Engine.Data.Models.Agencies;
+using OpenReinforce.Engine.Data.Models.Outfits;
 using OpenReinforce.Engine.Data.Models.Regions;
 using OpenReinforce.Engine.Data.Models.Response;
 using OpenReinforce.Engine.Data.Utilities;
@@ -28,14 +29,18 @@ var backups = FrDirectory.ReadData(dataDir,
     static r => ResponseTableReader.ReadTable(r),
     static (a, b) => a.Merge(b));
 
+var outfits = new FrContainerDataLoader<FrOutfit, FrOutfitFile>();
+var outfit = outfits.Load(dataDir, "outfits");
+
 if (agency == null || agency.Items == null ||
     region == null ||
-    backups == null)
+    backups == null ||
+    outfit == null)
 {
     Console.WriteLine("Failed to deserialize data.");
     return;
 }
 
-var display = new ViewSelectorDisplay(agency.Items, region.Items!, backups);
+var display = new ViewSelectorDisplay(agency.Items, region.Items!, backups, outfit.Items!);
 Displays.Run(display);
 Console.Clear();

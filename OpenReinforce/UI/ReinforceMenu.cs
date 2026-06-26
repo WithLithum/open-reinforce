@@ -34,7 +34,10 @@ internal static class ReinforceMenu
 
     internal static void InitializeComponents()
     {
-        LocalPatrolItem.Activated += LocalPatrolItem_Activated;
+        LocalPatrolItem.Activated +=
+            (_, _) => OnPatrolActivated(ReinforceType.LocalPatrol);
+        StatePatrolItem.Activated +=
+            (_, _) => OnPatrolActivated(ReinforceType.StatePatrol);
 
         Menu.AddItem(PriorityItem);
         Menu.AllowCameraMovement = true;
@@ -45,10 +48,10 @@ internal static class ReinforceMenu
         PriorityItem.IndexChanged += PriorityItem_IndexChanged;
     }
 
-    private static void LocalPatrolItem_Activated(UIMenu sender, UIMenuItem selectedItem)
+    private static void OnPatrolActivated(ReinforceType reinforceType)
     {
         ResponseManager.CreateResponse(PriorityItem.SelectedItem,
-            ReinforceType.LocalPatrol);
+            reinforceType);
         Menu.Visible = false;
     }
 

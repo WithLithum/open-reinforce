@@ -1,7 +1,8 @@
 using OpenReinforce.Engine.Data.Models.Agencies;
+using OpenReinforce.Viewer.UI;
 using Spectre.Console;
 
-namespace OpenReinforce.Viewer.UI;
+namespace OpenReinforce.Viewer.Views;
 
 internal sealed partial class AgencyDisplay : IDisplay
 {
