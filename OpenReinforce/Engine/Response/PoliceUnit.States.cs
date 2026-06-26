@@ -98,6 +98,8 @@ partial class PoliceUnit
 
     public void Process()
     {
+        _wrapKey.Process();
+
         switch (_state)
         {
             case PoliceUnitState.GoingToDestination:
