@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-        <DefineConstants>$(DefineConstants);LSPDFR;GTA</DefineConstants>
+        <DefineConstants>$(DefineConstants);GTA</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -24,7 +24,7 @@
         <PackageReference Include="WithLithum.NativeWrapper.RagePluginHook" Version="0.3.0-beta.1" />
     </ItemGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
         <Reference Include="LSPD First Response">
             <HintPath>..\References\LSPD First Response.dll</HintPath>
         </Reference>
