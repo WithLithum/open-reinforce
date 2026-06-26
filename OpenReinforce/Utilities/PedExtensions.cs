@@ -45,6 +45,13 @@ public static class PedExtensions
         return Natives.IsPedSittingInVehicle(ped.Handle, vehicle.Handle);
     }
 
+    public static bool IsSittingInAnyVehicle(this Ped ped)
+    {
+        Checks.Exists(ped);
+
+        return Natives.IsPedSittingInAnyVehicle(ped.Handle);
+    }
+
     public static bool IsOccupied(this Ped ped)
     {
         return

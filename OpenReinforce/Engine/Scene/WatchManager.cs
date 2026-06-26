@@ -13,7 +13,7 @@ namespace OpenReinforce.Engine.Scene;
 internal sealed class WatchManager
 {
     private const float FaceToFaceThreshold = 10f;
-    private const float FollowThreshold = 10.5f;
+    private const float FollowThreshold = 6.5f;
 
     private static readonly TimeSpan FaceToFaceTimeThreshold = TimeSpan.FromMilliseconds(500);
     private static readonly TimeSpan OccupiedTimeout = TimeSpan.FromSeconds(2);
@@ -223,31 +223,14 @@ internal sealed class WatchManager
             return;
         }
 
-        // Check for ped distance and tell them to follow.
-        var pedDistance = ped.DistanceTo(pc);
-        if (pedDistance >= FollowThreshold && !info.TaskedToFollow)
+        // Tell ped to leave vehicle if still sitting in it.
+        if (ped.IsSittingInAnyVehicle())
         {
-            ped.Tasks.Clear();
-            // Tell the ped to get over to the player.
-            Natives.TaskFollowToOffsetOfEntity(ped.Handle,
-                pc.Handle,
-                Vector3.RelativeFront.X,
-                Vector3.RelativeFront.Y,
-                Vector3.RelativeFront.Z,
-                2.0f,
-                -1,
-                FollowThreshold,
-                true
-                );
-            ped.Tasks.FollowToOffsetFromEntity(pc, Vector3.RelativeFront);
-            info.TaskedToFollow = true;
+            ped.Tasks.LeaveVehicle(LeaveVehicleFlags.None);
+            return;
         }
-        else if (pedDistance < FollowThreshold && info.TaskedToFollow)
-        {
-            ped.Tasks.Clear();
-            ped.Tasks.StandStill(-1);
-            info.TaskedToFollow = false;
-        }
+
+        ProcessFollow(info, ped, pc);
 
         if (!facingAnybody
             && ped.DistanceTo(pc) <= 6.5f
@@ -273,6 +256,35 @@ internal sealed class WatchManager
                 Game.HideHelp();
                 DismissCollague(info, index);
             }
+        }
+    }
+
+    private static void ProcessFollow(WatchPedInfo info, Ped ped, Ped pc)
+    {
+        // Check for ped distance and tell them to follow.
+        var pedDistance = ped.DistanceTo(pc);
+        if (pedDistance >= FollowThreshold && !info.TaskedToFollow)
+        {
+            ped.Tasks.Clear();
+            // Tell the ped to get over to the player.
+            Natives.TaskFollowToOffsetOfEntity(ped.Handle,
+                pc.Handle,
+                Vector3.RelativeFront.X,
+                Vector3.RelativeFront.Y,
+                Vector3.RelativeFront.Z,
+                2.0f,
+                -1,
+                FollowThreshold,
+                true
+                );
+            ped.Tasks.FollowToOffsetFromEntity(pc, Vector3.RelativeFront);
+            info.TaskedToFollow = true;
+        }
+        else if (pedDistance < FollowThreshold && info.TaskedToFollow)
+        {
+            ped.Tasks.Clear();
+            ped.Tasks.StandStill(-1);
+            info.TaskedToFollow = false;
         }
     }
 

@@ -7,7 +7,5 @@ Features:
 - Implement fire brigade and ambulances.
 - Implement prisoner transport.
 
-Watch manager bugs:
+Bugs:
 -------------------
-* Fix peds sometimes not getting out of car on arrival.
-* Fix backspace quick spawn not working.
