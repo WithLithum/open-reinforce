@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using OpenReinforce.Engine.Configuration;
+using OpenReinforce.Engine.Entities;
 using OpenReinforce.Native.Interop;
 using OpenReinforce.Utilities;
 using Rage;
@@ -29,11 +30,9 @@ internal partial class PoliceUnit : IResponseUnit
     private DateTimeOffset _wrapWait;
 
     private Vehicle? _vehicle;
-    private List<PedInfo>? _peds;
+    private List<SpawnedPedInfo>? _peds;
     private Ped? _driver;
     private Blip? _vehicleBlip;
-
-    private readonly record struct PedInfo(Ped Ped, int Seat);
 
     public PoliceUnit(LoadoutInfo loadout)
     {
@@ -83,90 +82,25 @@ internal partial class PoliceUnit : IResponseUnit
         var spawnPos = World.GetNextPositionOnStreet(destination.Around2D(
             MathHelper.GetRandomSingle(MinSpawnDistance, MaxSpawnDistance)));
 
-        var vehicleModel = ItemSelector.PickByChance(_loadout.Vehicles);
-
         // Create vehicle
-        // TODO replace models with actual vehicles & peds
-        _vehicle = new Vehicle(vehicleModel.ModelHash, spawnPos);
-        if (!_vehicle.IsValid())
+        var numPeds = MathHelper.GetRandomInteger(_loadout.MaximumPeds,
+            _loadout.MaximumPeds);
+        _peds = new List<SpawnedPedInfo>(numPeds);
+
+        if (!LoadoutSpawner.SpawnLoadout(_loadout,
+            spawnPos,
+            0,
+            out _vehicle,
+            out _driver,
+            _peds))
         {
-            Game.LogTrivial("OpenReinforce: Cop car spawn failed");
-            Game.LogTrivial("OpenReinforce: Check your configured vehicle model name");
             return false;
         }
-        _vehicle.IsPersistent = true;
-        vehicleModel.Apply(_vehicle);
 
         _vehicleBlip = _vehicle.AttachBlip();
         _vehicleBlip.IsFriendly = true;
         _vehicleBlip.Flash(1000, 0);
         _vehicleBlip.Name = "Cop Car";
-
-        var maxSeats = Natives.GetVehicleMaxNumberOfPassengers(_vehicle.Handle)
-             - 1;
-
-        var seatIndex = -1;
-        var numPeds = MathHelper.GetRandomInteger(_loadout.MaximumPeds,
-            _loadout.MaximumPeds);
-        _peds = new List<PedInfo>(numPeds);
-        for (int i = 0; i < numPeds; i++)
-        {
-            if (seatIndex > maxSeats)
-            {
-                Log.Warn("NumPeds greater than vehicle seats! Not spawning more.");
-                break;
-            }
-
-            var model = new Model("S_M_Y_COP_01");
-            model.LoadAndWait();
-            if (!model.IsLoaded)
-            {
-                Log.Warn("Cop model load failed. Does it exist?");
-                return false;
-            }
-
-            var pedHandle = Natives.CreatePedInsideVehicle(_vehicle.Handle,
-                0,
-                model.Hash,
-                seatIndex,
-                false,
-                false);
-            if (!Natives.DoesEntityExist(pedHandle))
-            {
-                Game.LogTrivial($"OpenReinforce: Failed to spawn ped on seat {i}");
-                continue;
-            }
-
-            var ped = World.GetEntityByHandle<Ped>(pedHandle);
-            ped.IsPersistent = true;
-            ped.BlockPermanentEvents = true;
-
-            if (!OpenReinforcePlugin.IsTestPlugin)
-            {
-                FrFunctions.SetPedAsCop(ped);
-            }
-            else
-            {
-                ped.RelationshipGroup = RelationshipGroup.Cop;
-            }
-
-            // TODO properly assign configured weapon!
-            if (seatIndex == -1)
-            {
-                _driver = ped;
-                _driver.KeepTasks = true;
-                ped.Inventory.GiveNewWeapon(WeaponHash.CombatPistol, short.MaxValue, true);
-            }
-            else
-            {
-                ped.Inventory.GiveNewWeapon(WeaponHash.PumpShotgun, short.MaxValue, true);
-            }
-
-            _peds.Add(new PedInfo(ped, seatIndex));
-
-            seatIndex++;
-            model.Dismiss();
-        }
 
         return true;
     }

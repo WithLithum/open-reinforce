@@ -3,6 +3,7 @@
 
 using OpenReinforce.Engine;
 using OpenReinforce.Engine.Configuration;
+using OpenReinforce.Engine.Configuration.Outfits;
 using OpenReinforce.Engine.Scene;
 using OpenReinforce.UI;
 using Rage;
@@ -19,11 +20,18 @@ internal static class OpenReinforcePlugin
     public static WatchManager WatchManager { get; } = new();
     public static LoadoutManager LoadoutManager { get; } = new();
 
+    public static IOutfitManager OutfitManager { get; } = new OutfitManager();
+
     public static void Initialize(bool testPlugin)
     {
         IsTestPlugin = testPlugin;
 
-        Initializer.Initialize();
+        if (!Initializer.Initialize())
+        {
+            Game.DisplayNotification("Error occured whilst loading OpenReinforce.");
+            throw new InvalidOperationException("Failed to load OpenReinforce.");
+        }
+
         ReinforceMenu.InitializeComponents();
 
         GameFiber.StartNew(static () =>
@@ -44,6 +52,8 @@ internal static class OpenReinforcePlugin
                 WatchManager.Process();
             }
         }, "OpenReinforce - Game Thread");
+
+        Game.DisplayNotification("~g~Successfully loaded~s~ ~b~~h~OpenReinforce~s~.");
     }
 
     public static void Finally()

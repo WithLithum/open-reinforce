@@ -18,10 +18,18 @@ internal sealed record LoadoutInfo : IChanced
 
     public required IReadOnlyList<LoadoutVehicleInfo> Vehicles { get; init; }
 
+    public required IReadOnlyList<LoadoutPedInfo> Peds { get; init; }
+
+    public bool IsBackupUnit { get; init; }
+
+    public bool IsTransportUnit { get; init; }
+
     public static bool TryConvertFrom(FrLoadout fr, [NotNullWhen(true)] out LoadoutInfo? result)
     {
-        // TODO peds & swat flag
-        if (fr.NumPeds == null || fr.Vehicles == null
+        // TODO swat flag
+        if (fr.NumPeds == null
+            || fr.Vehicles == null
+            || fr.Peds == null
             || fr.NumPeds.Min <= 0
             || fr.NumPeds.Min > fr.NumPeds.Max)
         {
@@ -30,12 +38,27 @@ internal sealed record LoadoutInfo : IChanced
             return false;
         }
 
+        // Flags support
+        var isBackup = true;
+        var isTransport = false;
+        if (fr.Flags != null)
+        {
+            foreach (var flag in fr.Flags)
+            {
+                isBackup = isBackup || flag == FrLoadoutOptions.RespondsAsBackup;
+                isTransport = isTransport || flag == FrLoadoutOptions.RespondsAsTransport;
+            }
+        }
+
         result = new LoadoutInfo
         {
             Chance = fr.Chance,
             MinimumPeds = fr.NumPeds.Min,
             MaximumPeds = fr.NumPeds.Max,
             Vehicles = ConvertLoadoutVehicles(fr.Vehicles),
+            Peds = ConvertLoadoutPeds(fr.Peds),
+            IsBackupUnit = isBackup,
+            IsTransportUnit = isTransport
         };
         return true;
     }
@@ -48,6 +71,19 @@ internal sealed record LoadoutInfo : IChanced
             if (LoadoutVehicleInfo.TryConvertFrom(vehicle, out var loadoutVeh))
             {
                 list.Add(loadoutVeh);
+            }
+        }
+        return list;
+    }
+
+    private static IReadOnlyList<LoadoutPedInfo> ConvertLoadoutPeds(FrLoadoutPed[] peds)
+    {
+        var list = new List<LoadoutPedInfo>(peds.Length);
+        foreach (var ped in peds)
+        {
+            if (LoadoutPedInfo.TryConvert(ped, out var result))
+            {
+                list.Add(result);
             }
         }
         return list;

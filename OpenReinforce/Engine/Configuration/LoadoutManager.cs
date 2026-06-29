@@ -50,7 +50,7 @@ internal sealed class LoadoutManager
         list.Add(loadout);
     }
 
-    public LoadoutInfo? PickLoadout(string zone, ReinforceType type)
+    public LoadoutInfo? PickLoadout(string zone, ReinforceType type, bool transport = false)
     {
         if (!_zoneNameToRegionName.TryGetValue(zone, out var region)
             || !_regionToLoadout.TryGetValue(region, out var dict)
@@ -60,6 +60,9 @@ internal sealed class LoadoutManager
             return null;
         }
 
-        return ItemSelector.PickByChance(list);
+        return ItemSelector.PickByUniform(list,
+            transport
+            ? x => x.IsTransportUnit
+            : x => x.IsBackupUnit);
     }
 }

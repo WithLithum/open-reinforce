@@ -14,6 +14,19 @@ internal static class ItemSelector
         return items[MathHelper.GetRandomInteger(0, items.Count - 1)];
     }
 
+    internal static T PickByUniform<T>(IEnumerable<T> items,
+        Predicate<T>? predicate = null)
+    {
+        var col = items;
+
+        if (predicate != null)
+        {
+            col = col.Where(x => predicate(x));
+        }
+
+        return col.OrderBy(o => MathHelper.GetRandomInteger(0, 150)).First();
+    }
+
     internal static T PickByChance<T>(IReadOnlyList<T> items) where T : IChanced
     {
         if (items.Count == 0)
@@ -32,10 +45,9 @@ internal static class ItemSelector
         foreach (var item in items)
         {
             totalSum += item.Chance;
-            if (totalSum >= 100)
+            if (totalSum > 100)
             {
-                Game.LogTrivial(
-                    "Open Reinforce: picking a list with sum adding up more than 100.");
+                Log.Warn("Picking a list with sum exceeding 100");
                 return item;
             }
 

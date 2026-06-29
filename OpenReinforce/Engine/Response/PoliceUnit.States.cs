@@ -263,7 +263,7 @@ partial class PoliceUnit
                 continue;
             }
 
-            OpenReinforcePlugin.WatchManager.Add(p, _vehicle, _peds[i].Seat);
+            OpenReinforcePlugin.WatchManager.Add(p, _vehicle, _peds[i].SeatIndex);
             _peds.RemoveAt(i);
         }
 

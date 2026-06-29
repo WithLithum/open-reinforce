@@ -74,10 +74,20 @@ public static class PedExtensions
         }
     }
 
+    public static bool IsFemale(uint modelHash)
+    {
+        return Natives.IsModelAPed(modelHash) && modelHash is FreemodeFemaleHash;
+    }
+
+    public static bool IsFreemodePed(this Ped ped)
+    {
+        return ped.IsValid()
+            && ped.Model.Hash is FreemodeMaleHash or FreemodeFemaleHash;
+    }
+
     public static void RandomizeMpAppearance(this Ped ped)
     {
-        var hash = ped.Model.Hash;
-        if (hash != FreemodeMaleHash && hash != FreemodeFemaleHash)
+        if (!ped.IsFreemodePed())
         {
             throw new ArgumentException("The specified ped is not a freemode male nor freemode female.");
         }
