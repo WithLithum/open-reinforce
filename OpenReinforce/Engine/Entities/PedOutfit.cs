@@ -13,68 +13,79 @@ internal sealed record PedOutfit
 
     public bool Female { get; init; }
 
-    public required IReadOnlyList<PedComponentInfo> Components { get; init; }
+    public required IReadOnlyDictionary<ComponentSlot, DrawableVariation> Components { get; init; }
 
-    public required IReadOnlyList<PedPropInfo> Props { get; init; }
+    public required IReadOnlyDictionary<PedPropAnchor, DrawableVariation> Props { get; init; }
 
     public void Apply(Ped ped)
     {
-        foreach (var component in Components)
+        foreach (var (slot, v) in Components)
         {
-#if DEBUG
-            Log.Info($"{component.Slot}: component model #{component.Drawable} | tex #{component.Texture}");
-#endif
-            component.Apply(ped);
+            v.Apply(ped, slot);
         }
 
-        foreach (var prop in Props)
+        foreach (var (anchor, v) in Props)
         {
-#if DEBUG
-            Log.Info($"{prop.Anchor}: prop model #{prop.Drawable} | tex #{prop.Texture}");
-#endif
-
-            prop.Apply(ped);
+            v.Apply(ped, anchor, true);
         }
     }
 
-    public static PedOutfit ConvertFrom(FrOutfitVariation variation)
+    public static PedOutfit ConvertFrom(FrOutfitVariation variation,
+        FrOutfitVariation? baseVariation = null)
     {
-        List<PedComponentInfo> componentList = [];
-        ApplyComponents(variation, componentList);
+        Dictionary<ComponentSlot, DrawableVariation> componentMap = [];
+        ApplyComponents(variation, componentMap);
+        ApplyComponents(baseVariation, componentMap);
 
-        List<PedPropInfo> propList = [];
-        ApplyProps(variation, propList);
+        Dictionary<PedPropAnchor, DrawableVariation> propMap = [];
+        ApplyProps(variation, propMap);
+        ApplyProps(baseVariation, propMap);
 
         return new PedOutfit
         {
-            Components = componentList ?? [],
-            Props = propList ?? [],
+            Components = componentMap ?? [],
+            Props = propMap ?? [],
             BaseVariant = variation.Base,
             Female = variation.Gender == FrOutfitGender.Female
         };
     }
 
-    private static void ApplyComponents(FrOutfitVariation variation, List<PedComponentInfo> componentList)
+    private static void ApplyComponents(FrOutfitVariation? variation,
+        Dictionary<ComponentSlot, DrawableVariation> map)
     {
-        if (variation.Components != null)
+        if (variation != null && variation.Components != null)
         {
-            componentList.Capacity = variation.Components.Length;
-
             foreach (var component in variation.Components)
             {
-                componentList.Add(PedComponentInfo.ConvertFrom(component));
+                if (component.Slot is > Constants.PedComponentSlotMax or < 0)
+                {
+                    Log.WarnFormat($"Skipping out of bounds component slot {component.Slot} from variation {variation.Name ?? variation.ScriptName}");
+                    continue;
+                }
+
+                var slot = (ComponentSlot)component.Slot;
+
+                map[slot] = new DrawableVariation(component.Drawable, component.Texture);
             }
         }
     }
 
-    private static void ApplyProps(FrOutfitVariation variation, List<PedPropInfo> propList)
+    private static void ApplyProps(FrOutfitVariation? variation,
+        Dictionary<PedPropAnchor, DrawableVariation> map)
     {
-        if (variation.Props != null)
+        if (variation != null && variation.Props != null)
         {
-            propList.Capacity = variation.Props.Length;
-            foreach (var component in variation.Props)
+            foreach (var prop in variation.Props)
             {
-                propList.Add(PedPropInfo.ConvertFrom(component));
+                if (prop.Slot is > Constants.PedPropSlotMax or < 0)
+                {
+                    Log.WarnFormat($"Skipping out of bounds prop slot {prop.Slot} from variation {variation.Name ?? variation.ScriptName}");
+                    continue;
+                }
+
+                var slot = (PedPropAnchor)prop.Slot;
+
+                map[slot] = new DrawableVariation(prop.Drawable, prop.Texture);
             }
         }
     }

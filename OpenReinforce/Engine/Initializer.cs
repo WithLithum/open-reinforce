@@ -96,6 +96,8 @@ internal static class Initializer
         return true;
     }
 
+    #region Outfit loader
+
     private static bool LoadOutfitsInternal(string dataDir)
     {
         Log.Info("Loading outfits");
@@ -106,30 +108,7 @@ internal static class Initializer
 
             foreach (var outfit in outfits.Items ?? [])
             {
-                var groupName = outfit.ScriptName;
-                if (string.IsNullOrWhiteSpace(groupName)
-                    || !OutfitReference.IsOutfitNameValid(groupName!))
-                {
-                    Log.Warn($"Missing or invalid outfit group name '{groupName ?? "[N/A]"}'");
-                    continue;
-                }
-
-                // Convert all variants
-                var counter = 0;
-                foreach (var variant in outfit.Variations ?? [])
-                {
-                    var varName = variant.ScriptName;
-                    if (string.IsNullOrWhiteSpace(varName)
-                        || !OutfitReference.IsOutfitNameValid(varName!))
-                    {
-                        // Assign a name that cannot be used to reference the variation.
-                        varName = $"\0__UNIFORM_ONLY__{counter++}";
-                    }
-
-                    OpenReinforcePlugin.OutfitManager.Add(varName!,
-                        groupName!,
-                        PedOutfit.ConvertFrom(variant));
-                }
+                ConvertOutfit(outfit);
             }
         }
         catch (Exception ex)
@@ -140,4 +119,53 @@ internal static class Initializer
 
         return true;
     }
+
+    private static void ConvertOutfit(FrOutfit outfit)
+    {
+        if (outfit.Variations == null
+            || outfit.Variations.Length == 0
+            || string.IsNullOrWhiteSpace(outfit.ScriptName)
+            || !OutfitReference.IsOutfitNameValid(outfit.ScriptName!))
+        {
+            return;
+        }
+
+        // Create a lookup dictionary.
+        var lookupMap =
+            new Dictionary<string, FrOutfitVariation>(outfit.Variations.Length);
+
+        foreach (var variant in outfit.Variations
+            .Where(static x => !string.IsNullOrWhiteSpace(x.ScriptName)))
+        {
+            lookupMap[variant.ScriptName!] = variant;
+        }
+
+        // Start conversion
+        var groupName = outfit.ScriptName!;
+
+        // Convert all variants
+        var counter = 0;
+        foreach (var variant in outfit.Variations!)
+        {
+            var varName = variant.ScriptName;
+            if (string.IsNullOrWhiteSpace(varName)
+                || !OutfitReference.IsOutfitNameValid(varName!))
+            {
+                // Assign a name that cannot be used to reference the variation.
+                varName = $"\0__UNIFORM_ONLY__{counter++}";
+            }
+
+            FrOutfitVariation? baseVariant = null;
+            if (variant.Base != null)
+            {
+                _ = lookupMap.TryGetValue(variant.Base, out baseVariant);
+            }
+
+            OpenReinforcePlugin.OutfitManager.Add(varName!,
+                groupName!,
+                PedOutfit.ConvertFrom(variant, baseVariant));
+        }
+    }
+
+    #endregion
 }

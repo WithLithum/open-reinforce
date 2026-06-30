@@ -100,20 +100,6 @@ internal static class LoadoutSpawner
         }
 
         ped.BlockPermanentEvents = true;
-        if (outfit != null)
-        {
-            // Apply base variant if any.
-            if (!string.IsNullOrWhiteSpace(outfit.BaseVariant))
-            {
-                var baseVariation = OpenReinforcePlugin.OutfitManager.PickByRef(
-                    new OutfitReference(pedLoadout.Outfit!.GroupName,
-                    outfit.BaseVariant),
-                    female);
-                baseVariation?.Apply(ped);
-            }
-
-            outfit.Apply(ped);
-        }
 
         outfit?.Apply(ped);
         pedLoadout.OverrideOutfit?.Apply(ped);

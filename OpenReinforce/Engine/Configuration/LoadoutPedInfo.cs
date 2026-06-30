@@ -48,20 +48,18 @@ internal sealed record LoadoutPedInfo : IChanced
 
     private static PedOutfit EvaluateOutfit(FrLoadoutPed fr)
     {
-        List<PedComponentInfo>? components = null;
-        List<PedPropInfo>? props = null;
+        Dictionary<ComponentSlot, DrawableVariation>? components = null;
+        Dictionary<PedPropAnchor, DrawableVariation>? props = null;
 
         void EvaluateSlot(ComponentSlot slot, int drawable, int texture)
         {
             if (drawable != -999)
             {
                 components ??= [];
-                components.Add(new PedComponentInfo()
-                {
-                    Drawable = drawable,
-                    Texture = texture == -999 ? 0 : texture,
-                    Slot = slot
-                });
+                components.Add(slot, new DrawableVariation(
+                    drawable,
+                    texture == -999 ? 0 : texture
+                ));
             }
         }
 
@@ -70,12 +68,10 @@ internal sealed record LoadoutPedInfo : IChanced
             if (drawable != -999)
             {
                 props ??= [];
-                props.Add(new PedPropInfo()
-                {
-                    Drawable = drawable,
-                    Texture = texture == -999 ? 0 : texture,
-                    Anchor = slot
-                });
+                props.Add(slot, new DrawableVariation(
+                    drawable,
+                    texture == -999 ? 0 : texture
+                ));
             }
         }
 
@@ -100,8 +96,8 @@ internal sealed record LoadoutPedInfo : IChanced
 
         return new PedOutfit()
         {
-            Components = EmptyList<PedComponentInfo>.Or(components),
-            Props = EmptyList<PedPropInfo>.Or(props)
+            Components = EmptyDictionary<ComponentSlot, DrawableVariation>.Or(components),
+            Props = EmptyDictionary<PedPropAnchor, DrawableVariation>.Or(props)
         };
     }
 }
